@@ -21,25 +21,25 @@ window.addEventListener('DOMContentLoaded', function() {
     // We're using textContent because inserting content from external sources into your page using innerHTML can be dangerous.
     // https://developer.mozilla.org/Web/API/Element.innerHTML#Security_considerations
 
-    loadScript();
+    var geo = Util.Geolocation.getInstance();
+    var currentPos = geo.getCurrentPosition();
+    currentPos.then((pos) => {
+      var mapFrame = document.getElementById('map_frame');
+      var posStr = JSON.stringify({
+        "coords": {
+          "accuracy": pos.coords.accuracy,
+          "altitude": pos.coords.altitude,
+          "altitudeAccuracy": pos.coords.altitudeAccuracy,
+          "heading": pos.coords.heading,
+          "latitude": pos.coords.latitude,
+          "longitude": pos.coords.longitude,
+          "speed": pos.coords.speed
+        },
+        "timestamp": pos.timestamp
+      });
+      mapFrame.contentWindow.postMessage('current:' + posStr, 'http://aoitan.github.io');
+    });
   }
 
-  function initialize() {
-    var mapOptions = {
-      center: new google.maps.LatLng(35.701812, 139.740435),
-      zoom: 8,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    var map = new google.maps.Map(document.getElementById("map_canvas"),
-        mapOptions);
-  }
-  window.initialize = initialize;
 
-
-  function loadScript() {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src = "http://maps.googleapis.com/maps/api/js?key=AIzaSyDoLWcewLuHe61WBPTDdGgwcsToIysSWw4&sensor=true&callback=initialize";
-    document.body.appendChild(script);
-  }
 });
