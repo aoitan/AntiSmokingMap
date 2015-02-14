@@ -1,7 +1,5 @@
 
-module Util {
-
-export class Geolocation {
+class Geoloc {
   static instance_: any = null;
   private geo: any = null;
   private watchId;
@@ -10,9 +8,9 @@ export class Geolocation {
     this.geo = navigator.geolocation;
   }
 
-  static getInstance(): Geolocation {
+  static getInstance(): Geoloc {
     if (!this.instance_) {
-      this.instance_ = new Geolocation();
+      this.instance_ = new Geoloc();
     }
     return this.instance_;
   }
@@ -22,7 +20,7 @@ export class Geolocation {
       this.geo.getCurrentPosition((position) => {
         resolve(position);
       }, (error) => {
-        reject(position);
+        reject(error);
       }, option);
     });
     return p;
@@ -37,4 +35,3 @@ export class Geolocation {
   }
 }
 
-}

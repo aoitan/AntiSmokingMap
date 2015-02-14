@@ -21,7 +21,12 @@ window.addEventListener('DOMContentLoaded', function() {
     // We're using textContent because inserting content from external sources into your page using innerHTML can be dangerous.
     // https://developer.mozilla.org/Web/API/Element.innerHTML#Security_considerations
 
-    var geo = Util.Geolocation.getInstance();
+    settingFirstPosition();
+    initHttpd();
+  }
+
+  function settingFirstPosition() {
+    var geo = Geoloc.getInstance();
     var currentPos = geo.getCurrentPosition();
     currentPos.then((pos) => {
       var mapFrame = document.getElementById('map_frame');
@@ -38,8 +43,43 @@ window.addEventListener('DOMContentLoaded', function() {
         "timestamp": pos.timestamp
       });
       mapFrame.contentWindow.postMessage('current:' + posStr, 'http://aoitan.github.io');
+    }).catch((error) => {
+      console.log(error);
     });
   }
 
+  var httpServer = null;
+  var HTTP_405 = new HttpError(405, 'Method Not Allowed');
 
+  function initHttpd() {
+    httpServer = new HttpServer();
+    httpServer.start(5000);
+    httpServer.get('/simple', (request, response, oncomplete) => {
+      //var params = querySplit(request.queryString);
+      if (request.Method === 'POST') {
+        var geo = Geoloc.getInstance();
+        var cp = geo.getCurrentPosition();
+        cp.then((pos) => {
+          // サーバたたく
+          console.log('POST request received');
+        });
+        oncomplete();
+      } else {
+        oncomplete(HTTP_501);
+      }
+    });
+    httpServer.get('/detail', (request, response, oncomplete) => {
+    });
+  }
+
+  /*
+  function querySplit(query) {
+    var params = [];
+    query.split('&').forEach((item) => {
+      var kv = item.split('=');
+      params.push({kv[0]: kv[1]});
+    });
+    return params;
+  }
+  */
 });

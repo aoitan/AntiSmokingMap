@@ -16,7 +16,8 @@
   "type": "privileged",
   "permissions": {
     "geolocation": {},
-    "systemXHR": {}
+    "systemXHR": {},
+    "tcp-socket": {}
   },
   "installs_allowed_from": [
     "*"
