@@ -1,3 +1,5 @@
+window.addEventListener('DOMContentLoaded', function () {
+
 var map;
 function map_view_loading() {
     var geo = navigator.geolocation;
@@ -153,3 +155,4 @@ function pasteImagePc()
     filePick.click();
 }
 
+});
