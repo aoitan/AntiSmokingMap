@@ -18,12 +18,28 @@ window.addEventListener('DOMContentLoaded', function() {
 
   function start() {
 
-    var message = document.getElementById('message');
-
     // We're using textContent because inserting content from external sources into your page using innerHTML can be dangerous.
     // https://developer.mozilla.org/Web/API/Element.innerHTML#Security_considerations
-    message.textContent = translate('message');
 
+    loadScript();
   }
 
+  function initialize() {
+    var mapOptions = {
+      center: new google.maps.LatLng(35.701812, 139.740435),
+      zoom: 8,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    var map = new google.maps.Map(document.getElementById("map_canvas"),
+        mapOptions);
+  }
+  window.initialize = initialize;
+
+
+  function loadScript() {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "http://maps.googleapis.com/maps/api/js?key=AIzaSyDoLWcewLuHe61WBPTDdGgwcsToIysSWw4&sensor=true&callback=initialize";
+    document.body.appendChild(script);
+  }
 });
