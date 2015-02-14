@@ -1,4 +1,6 @@
 window.addEventListener('DOMContentLoaded', function () {
+  map_view_loading();
+});
 
 var map;
 function map_view_loading() {
@@ -155,4 +157,3 @@ function pasteImagePc()
     filePick.click();
 }
 
-});
