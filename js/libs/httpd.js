@@ -17,15 +17,15 @@
 
 /** True if debugging output is enabled, false otherwise. */
 var DEBUG = false; // non-const *only* so tweakable in server tests
-var DEBUG_LOG = true;
+var DEBUG_LOG = false;
 
 /** True if debugging output should be timestamped. */
 var DEBUG_TIMESTAMP = false; // non-const so tweakable in server tests
 
-var DUMP_REQUEST_HEADER = true;
-var DUMP_REQUEST_BODY = true;
-var DUMP_RESPONSE_HEADER = true;
-var DUMP_RESPONSE_BODY = true;
+var DUMP_REQUEST_HEADER = false;
+var DUMP_REQUEST_BODY = false;
+var DUMP_RESPONSE_HEADER = false;
+var DUMP_RESPONSE_BODY = false;
 var DUMP_MESSAGE_TIMESTAMP = false;
 
 /**

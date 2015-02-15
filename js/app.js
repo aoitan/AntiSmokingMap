@@ -25,61 +25,132 @@ window.addEventListener('DOMContentLoaded', function() {
     initHttpd();
   }
 
+  function postPosMessage(cmd, pos) {
+    var mapFrame = document.getElementById('map_frame');
+    var posStr = JSON.stringify({
+      "coords": {
+        "accuracy": pos.coords.accuracy,
+        "altitude": pos.coords.altitude,
+        "altitudeAccuracy": pos.coords.altitudeAccuracy,
+        "heading": pos.coords.heading,
+        "latitude": pos.coords.latitude,
+        "longitude": pos.coords.longitude,
+        "speed": pos.coords.speed
+      },
+      "timestamp": pos.timestamp
+    });
+    mapFrame.contentWindow.postMessage(cmd + ':' + posStr, 'http://aoitan.github.io');
+  }
+
+  function postCurrentPosition(pos) {
+    postPosMessage('current', pos);
+  }
+
+  function postMakeMarker(pos) {
+    postPosMessage('marker', pos);
+  }
+
+  function postMakeMarkerLatLng(lat, lng) {
+    var mapFrame = document.getElementById('map_frame');
+    mapFrame.contentWindow.postMessage('latlng:' + JSON.stringify({'lat': lat, 'lng': lng}), 'http://aoitan.github.io');
+  }
+
   function settingFirstPosition() {
     var geo = Geoloc.getInstance();
     var currentPos = geo.getCurrentPosition();
     currentPos.then((pos) => {
-      var mapFrame = document.getElementById('map_frame');
-      var posStr = JSON.stringify({
-        "coords": {
-          "accuracy": pos.coords.accuracy,
-          "altitude": pos.coords.altitude,
-          "altitudeAccuracy": pos.coords.altitudeAccuracy,
-          "heading": pos.coords.heading,
-          "latitude": pos.coords.latitude,
-          "longitude": pos.coords.longitude,
-          "speed": pos.coords.speed
-        },
-        "timestamp": pos.timestamp
-      });
-      mapFrame.contentWindow.postMessage('current:' + posStr, 'http://aoitan.github.io');
+      postCurrentPosition(pos);
+
+      // 危険地帯取得してピン立て
+      // http://firefox-team9.azurewebsites.net/smoking/get_warning
+      var xhr = new XMLHttpRequest({mozSystem: true});
+      xhr.onload = () => {
+        console.log('status: ' + xhr.responseText);
+        var resp = JSON.parse(xhr.responseText);
+        resp.data.forEach((item) => {
+          console.log('pin lat=' + item.lat + ', lng=' + item.lng);
+          postMakeMarkerLatLng(item.lat, item.lng);
+        });
+      };
+      xhr.onerror = (err) => {
+        console.log('error: ' + err);
+      };
+      xhr.open('GET', 'http://firefox-team9.azurewebsites.net/smoking/get_warning?' +
+                       'lat=' + pos.coords.latitude +
+                       '&lng=' + pos.coords.longitude +
+                       '&rad=' + 10000);
+      xhr.send();
     }).catch((error) => {
       console.log(error);
     });
   }
 
   var httpServer = null;
-  var HTTP_405 = new HttpError(405, 'Method Not Allowed');
+
+  function floor(val, ratio) {
+    return Math.floor(value + ratio) / ratio;
+  }
 
   function initHttpd() {
     httpServer = new HttpServer();
     httpServer.start(5000);
     httpServer.get('/simple', (request, response, oncomplete) => {
-      //var params = querySplit(request.queryString);
-      if (request.Method === 'POST') {
-        var geo = Geoloc.getInstance();
-        var cp = geo.getCurrentPosition();
-        cp.then((pos) => {
-          // サーバたたく
-          console.log('POST request received');
+      console.log('request /simple');
+      var params = querySplit(request.queryString);
+      var geo = Geoloc.getInstance();
+      var cp = geo.getCurrentPosition()
+        .then((pos) => {
+          console.log('get position ' + pos);
+
+          // 位置更新
+          postCurrentPosition(pos);
+          return pos;
+        }).then((pos) => {
+/*
+          if (request.Method === 'POST') {
+*/
+            console.log('POST request received');
+
+            // サーバたたく
+            // http://firefox-team9.azurewebsites.net/smoking/add
+            var xhr = new XMLHttpRequest({mozSystem: true});
+            xhr.onload = () => {
+              console.log('status: ' + xhr.responseText);
+            };
+            xhr.onerror = (err) => {
+              console.log('error: ' + err);
+            };
+            var lat = floor(pos.coords.latitude, 10000000000); // 10桁丸め
+            var lng = fllor(pos.coords.longitude, 10000000000); // 10桁丸め
+            xhr.open('POST', 'http://firefox-team9.azurewebsites.net/smoking/add?' +
+                             'lat=' +  +
+                             '&lng=' + pos.coords.longitude);
+            xhr.send();
+            postMakeMarker(pos);
+            response.write('200 OK');
+            oncomplete();
+/*
+          } else {
+            response.write('501 Not Implemented');
+            oncomplete(HTTP_501);
+          }
+*/
         });
-        oncomplete();
-      } else {
-        oncomplete(HTTP_501);
-      }
     });
     httpServer.get('/detail', (request, response, oncomplete) => {
+      oncomplete(HTTP_501);
     });
   }
 
-  /*
   function querySplit(query) {
     var params = [];
     query.split('&').forEach((item) => {
       var kv = item.split('=');
-      params.push({kv[0]: kv[1]});
+      var key = kv[0];
+      var value = kv[1];
+      params.push({key: value});
     });
     return params;
   }
-  */
 });
+
