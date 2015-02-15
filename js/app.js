@@ -65,10 +65,10 @@ window.addEventListener('DOMContentLoaded', function() {
       // http://firefox-team9.azurewebsites.net/smoking/get_warning
       var xhr = new XMLHttpRequest({mozSystem: true});
       xhr.onload = () => {
-        console.log('status: ' + xhr.responseText);
+        //console.log('status: ' + xhr.responseText);
         var resp = JSON.parse(xhr.responseText);
         resp.data.forEach((item) => {
-          console.log('pin lat=' + item.lat + ', lng=' + item.lng);
+          //console.log('pin lat=' + item.lat + ', lng=' + item.lng);
           postMakeMarkerLatLng(item.lat, item.lng);
         });
       };
@@ -121,7 +121,7 @@ window.addEventListener('DOMContentLoaded', function() {
               console.log('error: ' + err);
             };
             var lat = floor(pos.coords.latitude, 10000000000); // 10桁丸め
-            var lng = fllor(pos.coords.longitude, 10000000000); // 10桁丸め
+            var lng = floor(pos.coords.longitude, 10000000000); // 10桁丸め
             xhr.open('POST', 'http://firefox-team9.azurewebsites.net/smoking/add?' +
                              'lat=' +  +
                              '&lng=' + pos.coords.longitude);
