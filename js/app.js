@@ -25,9 +25,21 @@ window.addEventListener('DOMContentLoaded', function() {
     initHttpd();
   }
 
-  function postPosMessage(cmd, pos) {
+　var TYPE_POISON_GUS        = 1; // 毒ガス
+　var TYPE_SULFIDIZING_GUS   = 2; // 硫黄化合物
+　var TYPE_ALCOHOL           = 3; // アルコール
+　var TYPE_ATMOSPHERE        = 4; // 気圧
+　var TYPE_DUST              = 5; // ほこり
+　var TYPE_RADIO_RAY         = 6; // 放射線量
+　var TYPE_WIRETAPPING_RADIO = 7; // 盗聴電波
+  var TYPE_TABACO            = 8; // タバコ
+
+
+  function postPosMessage(cmd, id, pos, type) {
     var mapFrame = document.getElementById('map_frame');
     var posStr = JSON.stringify({
+      "id": id,
+      "type": type,
       "coords": {
         "accuracy": pos.coords.accuracy,
         "altitude": pos.coords.altitude,
@@ -43,16 +55,16 @@ window.addEventListener('DOMContentLoaded', function() {
   }
 
   function postCurrentPosition(pos) {
-    postPosMessage('current', pos);
+    postPosMessage('current', -1, pos, -1);
   }
 
-  function postMakeMarker(pos) {
-    postPosMessage('marker', pos);
+  function postMakeMarker(id, pos, type) {
+    postPosMessage('marker', id, pos, type);
   }
 
-  function postMakeMarkerLatLng(lat, lng) {
+  function postMakeMarkerLatLng(id, lat, lng, type) {
     var mapFrame = document.getElementById('map_frame');
-    mapFrame.contentWindow.postMessage('latlng:' + JSON.stringify({'lat': lat, 'lng': lng}), 'http://aoitan.github.io');
+    mapFrame.contentWindow.postMessage('latlng:' + JSON.stringify({'id': id, 'lat': lat, 'lng': lng, 'type': type}), 'http://aoitan.github.io');
   }
 
   function settingFirstPosition() {
@@ -61,6 +73,16 @@ window.addEventListener('DOMContentLoaded', function() {
     currentPos.then((pos) => {
       postCurrentPosition(pos);
 
+      geo.watchPosition(
+          (pos) => {
+            postCurrentPosition(pos);
+          }, (err) => {
+            console.log(error);
+          }, {
+            enableHighAccuracy: true,
+            maximumAge: 60 * 60 * 1000
+          });
+
       // 危険地帯取得してピン立て
       // http://firefox-team9.azurewebsites.net/smoking/get_warning
       var xhr = new XMLHttpRequest({mozSystem: true});
@@ -68,17 +90,20 @@ window.addEventListener('DOMContentLoaded', function() {
         //console.log('status: ' + xhr.responseText);
         var resp = JSON.parse(xhr.responseText);
         resp.data.forEach((item) => {
-          //console.log('pin lat=' + item.lat + ', lng=' + item.lng);
-          postMakeMarkerLatLng(item.lat, item.lng);
+          console.log('pin lat=' + item.lat + ', lng=' + item.lng);
+          postMakeMarkerLatLng(item.id, item.lat, item.lng, item.type);
         });
       };
       xhr.onerror = (err) => {
         console.log('error: ' + err);
       };
-      xhr.open('GET', 'http://firefox-team9.azurewebsites.net/smoking/get_warning?' +
-                       'lat=' + pos.coords.latitude +
-                       '&lng=' + pos.coords.longitude +
-                       '&rad=' + 10000);
+      var url = 'http://firefox-team9.azurewebsites.net/smoking/get_warning?' +
+                'lat=' + pos.coords.latitude +
+                '&lng=' + pos.coords.longitude +
+                '&rad=' + 10000 + 
+                '&type=' + TYPE_TABACO;
+      console.log('xhr: ' + url);
+      xhr.open('GET', url);
       xhr.send();
     }).catch((error) => {
       console.log(error);
@@ -87,7 +112,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
   var httpServer = null;
 
-  function floor(val, ratio) {
+  function floor(value, ratio) {
     return Math.floor(value + ratio) / ratio;
   }
 
@@ -106,9 +131,9 @@ window.addEventListener('DOMContentLoaded', function() {
           postCurrentPosition(pos);
           return pos;
         }).then((pos) => {
-/*
+/*/
           if (request.Method === 'POST') {
-*/
+//*/
             console.log('POST request received');
 
             // サーバたたく
@@ -116,6 +141,11 @@ window.addEventListener('DOMContentLoaded', function() {
             var xhr = new XMLHttpRequest({mozSystem: true});
             xhr.onload = () => {
               console.log('status: ' + xhr.responseText);
+              var resp = JSON.parse(xhr.responseText);
+              if  (resp.id) {
+                var type = (params.type)? params.type: TYPE_TABACO;
+                postMakeMarker(resp.id, pos, params.type);
+              }
             };
             xhr.onerror = (err) => {
               console.log('error: ' + err);
@@ -126,15 +156,14 @@ window.addEventListener('DOMContentLoaded', function() {
                              'lat=' +  +
                              '&lng=' + pos.coords.longitude);
             xhr.send();
-            postMakeMarker(pos);
             response.write('200 OK');
             oncomplete();
-/*
+/*/
           } else {
             response.write('501 Not Implemented');
             oncomplete(HTTP_501);
           }
-*/
+//*/
         });
     });
     httpServer.get('/detail', (request, response, oncomplete) => {
