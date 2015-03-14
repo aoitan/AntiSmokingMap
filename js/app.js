@@ -85,26 +85,32 @@ window.addEventListener('DOMContentLoaded', function() {
 
       // 危険地帯取得してピン立て
       // http://firefox-team9.azurewebsites.net/smoking/get_warning
-      var xhr = new XMLHttpRequest({mozSystem: true});
-      xhr.onload = () => {
-        //console.log('status: ' + xhr.responseText);
-        var resp = JSON.parse(xhr.responseText);
+      var p = new Promise((resolve, reject) => {
+        var xhr = new XMLHttpRequest({mozSystem: true});
+        xhr.onload = () => {
+          //console.log('status: ' + xhr.responseText);
+          resolve(xhr.responseText);
+        };
+        xhr.onerror = (err) => {
+          reject(err);
+        };
+        var url = 'http://firefox-team9.azurewebsites.net/smoking/get_warning?' +
+                  'lat=' + pos.coords.latitude +
+                  '&lng=' + pos.coords.longitude +
+                  '&rad=' + 10000;
+        console.log('xhr: ' + url);
+        xhr.open('GET', url);
+        xhr.send();
+      }).then((responseText) => {
+        var resp = JSON.parse(responseText);
         resp.data.forEach((item) => {
           console.log('pin lat=' + item.lat + ', lng=' + item.lng);
           postMakeMarkerLatLng(item.id, item.lat, item.lng, item.type);
         });
-      };
-      xhr.onerror = (err) => {
+      }).then(() => {
+      }).catch((err) => {
         console.log('error: ' + err);
-      };
-      var url = 'http://firefox-team9.azurewebsites.net/smoking/get_warning?' +
-                'lat=' + pos.coords.latitude +
-                '&lng=' + pos.coords.longitude +
-                '&rad=' + 10000 + 
-                '&type=' + TYPE_TABACO;
-      console.log('xhr: ' + url);
-      xhr.open('GET', url);
-      xhr.send();
+      });
     }).catch((error) => {
       console.log(error);
     });
