@@ -16,7 +16,7 @@ class Database {
   }
 
   getWarning(pos: any, rad: Number, type: Number): Promise<any> {
-    // http://firefox-team9.azurewebsites.net/smoking/get_warning
+    // http://gas-map.azurewebsites.net/smoking/get_warning
     var p = new Promise((resolve, reject) => {
       var xhr = new XMLHttpRequest({mozSystem: true});
       xhr.onload = () => {
@@ -26,7 +26,7 @@ class Database {
       xhr.onerror = (err) => {
         reject(err);
       };
-      var url = 'http://firefox-team9.azurewebsites.net/smoking/get_warning?' +
+      var url = 'http://gas-map.azurewebsites.net/smoking/get_warning?' +
                 'lat=' + pos.coords.latitude +
                 '&lng=' + pos.coords.longitude +
                 '&rad=' + rad;
@@ -39,7 +39,7 @@ class Database {
   }
 
   add(pos, type: Number): Promise<any> {
-    // http://firefox-team9.azurewebsites.net/smoking/add
+    // http://gas-map.azurewebsites.net/smoking/add
     var p = new Promise((resolve, reject) => {
       var xhr = new XMLHttpRequest({mozSystem: true});
       xhr.onload = () => {
@@ -50,7 +50,7 @@ class Database {
       };
       var lat = this.floor(pos.coords.latitude, 10000000000); // 10桁丸め
       var lng = this.floor(pos.coords.longitude, 10000000000); // 10桁丸め
-      xhr.open('POST', 'http://firefox-team9.azurewebsites.net/smoking/add?' +
+      xhr.open('POST', 'http://gas-map.azurewebsites.net/smoking/add?' +
                        'lat=' + lat +
                        '&lng=' + lng +
                        '&type=' + type);
@@ -60,7 +60,7 @@ class Database {
   }
 
   detail(id: Number): Promise<any> {
-    // http://firefox-team9.azurewebsites.net/smoking/detail
+    // http://gas-map.azurewebsites.net/smoking/detail
     var p = new Promise((resolve, reject) => {
       var xhr = new XMLHttpRequest({mozSystem: true});
       xhr.onload = () => {
@@ -69,7 +69,7 @@ class Database {
       xhr.onerror = (err) => {
         reject(err);
       };
-      xhr.open('POST', 'http://firefox-team9.azurewebsites.net/smoking/detail?' +
+      xhr.open('POST', 'http://gas-map.azurewebsites.net/smoking/detail?' +
                        'id=' + id);
       xhr.send();
     });
@@ -77,7 +77,7 @@ class Database {
   }
 
   update(id: Number, name: String, address: String, rating: Number, comment: String): Promise<any> {
-    // http://firefox-team9.azurewebsites.net/smoking/detail
+    // http://gas-map.azurewebsites.net/smoking/detail
     var p = new Promise((resolve, reject) => {
       var xhr = new XMLHttpRequest({mozSystem: true});
       xhr.onload = () => {
@@ -86,7 +86,7 @@ class Database {
       xhr.onerror = (err) => {
         reject(err);
       };
-      xhr.open('POST', 'http://firefox-team9.azurewebsites.net/smoking/update?' +
+      xhr.open('POST', 'http://gas-map.azurewebsites.net/smoking/update?' +
                        'id=' + id +
                        '&name=' + name +
                        '&address=' + address +

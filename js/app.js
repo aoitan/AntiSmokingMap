@@ -67,35 +67,55 @@ window.addEventListener('DOMContentLoaded', function() {
     mapFrame.contentWindow.postMessage('latlng:' + JSON.stringify({'id': id, 'lat': lat, 'lng': lng, 'type': type, 'detail': detail}), 'http://aoitan.github.io');
   }
 
+  function settingPin(pos, rad, type) {
+    // 危険地帯取得してピン立て
+    // http://firefox-team9.azurewebsites.net/smoking/get_warning
+    return Database.getInstance().getWarning(pos, rad, type)
+      .then((resp) => {
+        resp.data.forEach((item) => {
+          Database.getInstance().detail(item.id)
+            .then((resp) => {
+              //console.log('pin lat=' + item.lat + ', lng=' + item.lng);
+              postMakeMarkerLatLng(item.id, item.lat, item.lng, item.type, resp.data);
+            });
+        });
+      }).catch((err) => {
+        console.log('error: ' + err);
+      });
+  }
+
+  var oldPos = null;
+  function comparePos(pos) {
+    if (!oldPos) oldPos = pos;
+    var lat = floor(pos.coords.latitude);
+    var lon = floor(pos.coords.longitude);
+    var oldLat = floor(oldPos.coords.latitude);
+    var oldLon = floor(oldPos.coords.longitude)
+    if (lat === oldLat && lon === oldLon) {
+      return true;
+    }
+    return false;
+  }
+
   function settingFirstPosition() {
     var geo = Geoloc.getInstance();
     var currentPos = geo.getCurrentPosition();
     currentPos.then((pos) => {
       postCurrentPosition(pos);
+      settingPin(pos, 1000, 0); // 0は全種取得
+      comparePos(pos);
 
       geo.watchPosition(
-          (pos) => {
+        (pos) => {
+          if (!comparePos(pos)) {
             postCurrentPosition(pos);
-          }, (err) => {
-            console.log(error);
-          }, {
-            enableHighAccuracy: true,
-            maximumAge: 60 * 60 * 1000
-          });
-
-      // 危険地帯取得してピン立て
-      // http://firefox-team9.azurewebsites.net/smoking/get_warning
-      Database.getInstance().getWarning(pos, 10000, 0)
-        .then((resp) => {
-          resp.data.forEach((item) => {
-            Database.getInstance().detail(item.id)
-              .then((resp) => {
-                console.log('pin lat=' + item.lat + ', lng=' + item.lng);
-                postMakeMarkerLatLng(item.id, item.lat, item.lng, item.type, resp.data);
-              });
-          });
-        }).catch((err) => {
-          console.log('error: ' + err);
+            //settingPin(pos, 5000, 0); // 0は全種取得
+          }
+        }, (err) => {
+          console.log(error);
+        }, {
+          enableHighAccuracy: true,
+          maximumAge: 60 * 60 * 1000
         });
     }).catch((error) => {
       console.log(error);

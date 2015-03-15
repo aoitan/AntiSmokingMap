@@ -10,7 +10,7 @@ var Database = (function () {
         return this.instance_;
     };
     Database.prototype.getWarning = function (pos, rad, type) {
-        // http://firefox-team9.azurewebsites.net/smoking/get_warning
+        // http://gas-map.azurewebsites.net/smoking/get_warning
         var p = new Promise(function (resolve, reject) {
             var xhr = new XMLHttpRequest({ mozSystem: true });
             xhr.onload = function () {
@@ -21,7 +21,7 @@ var Database = (function () {
             xhr.onerror = function (err) {
                 reject(err);
             };
-            var url = 'http://firefox-team9.azurewebsites.net/smoking/get_warning?' + 'lat=' + pos.coords.latitude + '&lng=' + pos.coords.longitude + '&rad=' + rad;
+            var url = 'http://gas-map.azurewebsites.net/smoking/get_warning?' + 'lat=' + pos.coords.latitude + '&lng=' + pos.coords.longitude + '&rad=' + rad;
             url = (type === 0) ? url : url + '&type=' + type;
             if (DEBUG)
                 console.log('xhr: ' + url);
@@ -32,7 +32,7 @@ var Database = (function () {
     };
     Database.prototype.add = function (pos, type) {
         var _this = this;
-        // http://firefox-team9.azurewebsites.net/smoking/add
+        // http://gas-map.azurewebsites.net/smoking/add
         var p = new Promise(function (resolve, reject) {
             var xhr = new XMLHttpRequest({ mozSystem: true });
             xhr.onload = function () {
@@ -43,13 +43,13 @@ var Database = (function () {
             };
             var lat = _this.floor(pos.coords.latitude, 10000000000); // 10桁丸め
             var lng = _this.floor(pos.coords.longitude, 10000000000); // 10桁丸め
-            xhr.open('POST', 'http://firefox-team9.azurewebsites.net/smoking/add?' + 'lat=' + lat + '&lng=' + lng + '&type=' + type);
+            xhr.open('POST', 'http://gas-map.azurewebsites.net/smoking/add?' + 'lat=' + lat + '&lng=' + lng + '&type=' + type);
             xhr.send();
         });
         return p;
     };
     Database.prototype.detail = function (id) {
-        // http://firefox-team9.azurewebsites.net/smoking/detail
+        // http://gas-map.azurewebsites.net/smoking/detail
         var p = new Promise(function (resolve, reject) {
             var xhr = new XMLHttpRequest({ mozSystem: true });
             xhr.onload = function () {
@@ -58,13 +58,13 @@ var Database = (function () {
             xhr.onerror = function (err) {
                 reject(err);
             };
-            xhr.open('POST', 'http://firefox-team9.azurewebsites.net/smoking/detail?' + 'id=' + id);
+            xhr.open('POST', 'http://gas-map.azurewebsites.net/smoking/detail?' + 'id=' + id);
             xhr.send();
         });
         return p;
     };
     Database.prototype.update = function (id, name, address, rating, comment) {
-        // http://firefox-team9.azurewebsites.net/smoking/detail
+        // http://gas-map.azurewebsites.net/smoking/detail
         var p = new Promise(function (resolve, reject) {
             var xhr = new XMLHttpRequest({ mozSystem: true });
             xhr.onload = function () {
@@ -73,7 +73,7 @@ var Database = (function () {
             xhr.onerror = function (err) {
                 reject(err);
             };
-            xhr.open('POST', 'http://firefox-team9.azurewebsites.net/smoking/update?' + 'id=' + id + '&name=' + name + '&address=' + address + '&rating=' + rating + '&comment=' + comment);
+            xhr.open('POST', 'http://gas-map.azurewebsites.net/smoking/update?' + 'id=' + id + '&name=' + name + '&address=' + address + '&rating=' + rating + '&comment=' + comment);
             xhr.send();
         });
         return p;
