@@ -102,7 +102,7 @@ window.addEventListener('DOMContentLoaded', function() {
     var currentPos = geo.getCurrentPosition();
     currentPos.then((pos) => {
       postCurrentPosition(pos);
-      settingPin(pos, 1000, 0); // 0は全種取得
+      settingPin(pos, 10000, 0); // 0は全種取得
       comparePos(pos);
 
       geo.watchPosition(
