@@ -1,4 +1,4 @@
-
+/// <reference path="../typings/es6-promise/es6-promise.d.ts" />
 class Geoloc {
   static instance_: any = null;
   private geo: any = null;
