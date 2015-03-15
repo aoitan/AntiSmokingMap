@@ -62,9 +62,9 @@ window.addEventListener('DOMContentLoaded', function() {
     postPosMessage('marker', id, pos, type);
   }
 
-  function postMakeMarkerLatLng(id, lat, lng, type) {
+  function postMakeMarkerLatLng(id, lat, lng, type, detail) {
     var mapFrame = document.getElementById('map_frame');
-    mapFrame.contentWindow.postMessage('latlng:' + JSON.stringify({'id': id, 'lat': lat, 'lng': lng, 'type': type}), 'http://aoitan.github.io');
+    mapFrame.contentWindow.postMessage('latlng:' + JSON.stringify({'id': id, 'lat': lat, 'lng': lng, 'type': type, 'detail': detail}), 'http://aoitan.github.io');
   }
 
   function settingFirstPosition() {
@@ -88,8 +88,11 @@ window.addEventListener('DOMContentLoaded', function() {
       Database.getInstance().getWarning(pos, 10000, 0)
         .then((resp) => {
           resp.data.forEach((item) => {
-            console.log('pin lat=' + item.lat + ', lng=' + item.lng);
-            postMakeMarkerLatLng(item.id, item.lat, item.lng, item.type);
+            Database.getInstance().detail(item.id)
+              .then((resp) => {
+                console.log('pin lat=' + item.lat + ', lng=' + item.lng);
+                postMakeMarkerLatLng(item.id, item.lat, item.lng, item.type, resp.data);
+              });
           });
         }).catch((err) => {
           console.log('error: ' + err);

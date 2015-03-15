@@ -48,6 +48,36 @@ var Database = (function () {
         });
         return p;
     };
+    Database.prototype.detail = function (id) {
+        // http://firefox-team9.azurewebsites.net/smoking/detail
+        var p = new Promise(function (resolve, reject) {
+            var xhr = new XMLHttpRequest({ mozSystem: true });
+            xhr.onload = function () {
+                resolve(JSON.parse(xhr.responseText));
+            };
+            xhr.onerror = function (err) {
+                reject(err);
+            };
+            xhr.open('POST', 'http://firefox-team9.azurewebsites.net/smoking/detail?' + 'id=' + id);
+            xhr.send();
+        });
+        return p;
+    };
+    Database.prototype.update = function (id, name, address, rating, comment) {
+        // http://firefox-team9.azurewebsites.net/smoking/detail
+        var p = new Promise(function (resolve, reject) {
+            var xhr = new XMLHttpRequest({ mozSystem: true });
+            xhr.onload = function () {
+                resolve(JSON.parse(xhr.responseText));
+            };
+            xhr.onerror = function (err) {
+                reject(err);
+            };
+            xhr.open('POST', 'http://firefox-team9.azurewebsites.net/smoking/update?' + 'id=' + id + '&name=' + name + '&address=' + address + '&rating=' + rating + '&comment=' + comment);
+            xhr.send();
+        });
+        return p;
+    };
     Database.prototype.floor = function (value, ratio) {
         return Math.floor(value + ratio) / ratio;
     };

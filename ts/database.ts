@@ -59,6 +59,44 @@ class Database {
     return p;
   }
 
+  detail(id: Number): Promise<any> {
+    // http://firefox-team9.azurewebsites.net/smoking/detail
+    var p = new Promise((resolve, reject) => {
+      var xhr = new XMLHttpRequest({mozSystem: true});
+      xhr.onload = () => {
+        resolve(JSON.parse(xhr.responseText));
+      };
+      xhr.onerror = (err) => {
+        reject(err);
+      };
+      xhr.open('POST', 'http://firefox-team9.azurewebsites.net/smoking/detail?' +
+                       'id=' + id);
+      xhr.send();
+    });
+    return p;
+  }
+
+  update(id: Number, name: String, address: String, rating: Number, comment: String): Promise<any> {
+    // http://firefox-team9.azurewebsites.net/smoking/detail
+    var p = new Promise((resolve, reject) => {
+      var xhr = new XMLHttpRequest({mozSystem: true});
+      xhr.onload = () => {
+        resolve(JSON.parse(xhr.responseText));
+      };
+      xhr.onerror = (err) => {
+        reject(err);
+      };
+      xhr.open('POST', 'http://firefox-team9.azurewebsites.net/smoking/update?' +
+                       'id=' + id +
+                       '&name=' + name +
+                       '&address=' + address +
+                       '&rating=' + rating +
+                       '&comment=' + comment);
+      xhr.send();
+    });
+    return p;
+  }
+
   private floor(value, ratio) {
     return Math.floor(value + ratio) / ratio;
   }
